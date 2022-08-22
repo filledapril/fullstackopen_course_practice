@@ -1,3 +1,5 @@
+import React from 'react'
+
 const Persons = ({showNumber}) =>{
     return(
         <div>
