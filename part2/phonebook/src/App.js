@@ -1,8 +1,8 @@
 import React, { useState, useEffect} from 'react'
-import axios from 'axios'
 import Filter from './Components/Filter'
 import PersonForm from './Components/PersonForm'
 import Persons from './Components/Persons'
+import numberServer from './server/Number'
 
 const App = () => {
   const [persons, setPersons] = useState([])
@@ -13,12 +13,10 @@ const App = () => {
 
 
   useEffect(() => {
-    console.log('effect')
-    axios
-      .get('http://localhost:3001/persons')
-      .then(response => {
-        console.log('promise fulfilled')
-        setPersons(response.data)
+    numberServer
+      .getAll()
+      .then(initialNumber => {
+        setPersons(initialNumber)
       })
   }, [])
     console.log('render', persons.length, 'persons')
@@ -45,15 +43,49 @@ const App = () => {
         number: newNumber,
         id: newName,
       }
-
+    
+//Check if name alredy exist, if not, add person
     persons.some(e => e.name === newName)
       ? alert(`${newName} is already added to phonebook`)
-      : setPersons(persons.concat(nameObject))  
+      : numberServer
+          .create(nameObject)
+          .then(returnNumber => {
+            setPersons(persons.concat(returnNumber))
+            setNewName('')
+            setNewNumber('')
+          })
+//person alredy exist ask for updating
+    const personUpdate = persons.find(p => p.name === newName)
+      if(personUpdate){
+        if(window.confirm(`Replace ${personUpdate.number} with ${newNumber}?`)){
 
-    setNewName('')
+          const numberChange = {...personUpdate, number: newNumber}
+          const id = personUpdate.id
+
+          numberServer
+            .update(id, numberChange)
+            .then(returnNumber => {
+              setPersons(persons.map(person => 
+                person.id !== id ? person : returnNumber))
+            })
+
+            setNewName('')
+            setNewNumber('')
+        }
+      }        
   }
 
 
+  const removeName = (id) =>{
+    if (window.confirm(`Do you really want to delete ${id}?`)){
+      numberServer
+        .remove(id)
+        .then(() => {
+          setPersons(persons.filter(persons => persons.id !== id))
+    })}
+    }
+
+  //show the searching number by name
   const showNumber = searchName === ''
   ? persons
   : persons.filter(p => p.name.toLowerCase().includes(searchName.toLowerCase()))
@@ -72,7 +104,7 @@ const App = () => {
         handleNumberChange={handleNumberChange}
       />
       <h2>Numbers</h2>
-      <Persons showNumber={showNumber}/>
+      <Persons showNumber={showNumber} removeName={removeName}/>
     </div>
   )
 }

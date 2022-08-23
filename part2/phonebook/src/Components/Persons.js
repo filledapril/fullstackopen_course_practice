@@ -1,9 +1,17 @@
 import React from 'react'
 
-const Persons = ({showNumber}) =>{
+
+
+const Persons = ({showNumber, removeName}) =>{
     return(
         <div>
-            {showNumber.map((p)=> <div key={p.id}>{p.name} {p.number}</div>)}
+            {showNumber.map((p)=> 
+            <div key={p.id}>
+                {p.name} 
+                {p.number}
+                <button onClick={() => removeName(p.id)}>Delete</button>
+            </div>)}
+            
         </div>
     )}
 
