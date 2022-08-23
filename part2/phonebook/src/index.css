@@ -1,0 +1,10 @@
+.added{ 
+    color: rgba(56, 143, 175, 0.917);
+  background: lightgrey;
+  font-size: 20px;
+  border-style: solid;
+  border-radius: 5px;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+
