@@ -13,4 +13,4 @@ const Footer = () => {
         </div>
     )
 }
-export default Footers
+export default Footer
