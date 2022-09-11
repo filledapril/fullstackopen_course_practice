@@ -14,6 +14,7 @@ const App = () => {
   const [addedMessage, setAddedMessage] = useState(null)
   const [removeMessage, setRemoveMessage] = useState(null)
   const [errorMessage, setErrorMessage] = useState(null)
+  
 
 
 
@@ -45,36 +46,15 @@ const App = () => {
       const nameObject = {
         name: newName,
         number: newNumber,
-        id: newName,
       }
-    
-//Check if name alredy exist, if not, add person
-    persons.some(e => e.name === newName)
-      ? alert(`${newName} is already exist in phonebook`)
-      : numberServer
-          .create(nameObject)
-          .then(returnNumber => {
-            setPersons(persons.concat(returnNumber))
-            setNewName('')
-            setNewNumber('')
 
-            setAddedMessage(
-              `Added ${newName} - ${newNumber}`
-            )
-            setTimeout(() => {
-              setAddedMessage(null)
-            }, 5000)
-          })
+    if(persons.map(person => person.name).includes(nameObject.name)){
+      if(window.confirm(`Replace ${nameObject.number} with ${nameObject.name}?`)){
+        const personUpdate = persons.find(p => p.name === newName)
+        const numberChange = {...personUpdate, number: newNumber}
+        const id = personUpdate.id
 
-//person alredy exist ask for updating
-    const personUpdate = persons.find(p => p.name === newName)
-      if(personUpdate){
-        if(window.confirm(`Replace ${personUpdate.number} with ${newNumber}?`)){
-
-          const numberChange = {...personUpdate, number: newNumber}
-          const id = personUpdate.id
-
-          numberServer
+        numberServer
             .update(id, numberChange).then(returnNumber => {
               setPersons(persons.map(person => 
                 person.id !== id ? person : returnNumber))
@@ -88,28 +68,55 @@ const App = () => {
 
             setNewName('')
             setNewNumber('')
-        }
-      }        
-  }
 
+      }
+    } else {
+      numberServer
+          .create(nameObject)
+          .then(returnNumber => {
+            setPersons(persons.concat(returnNumber))
+            setNewName('')
+            setNewNumber('')
 
-    const removeName = (id) =>{
-      if (window.confirm(`Do you really want to delete ${id}?`)){
-        numberServer.remove(id).then(() => {
+            setAddedMessage(
+              `Added ${newName} ${newNumber}`
+            )
+            setTimeout(() => {
+              setAddedMessage(null)
+            }, 5000)
+          })
+          .catch(error => {
+            setAddedMessage(
+              `Error : ${error.response.data.error}`
+            )
+            setTimeout(() => {
+              setAddedMessage(null)
+            }, 5000)
+          })
+    }}
+    
+    const removeName = (id, name) =>{
+
+      if (window.confirm(`Do you really want to delete ${name}?`)){
+        numberServer
+            .remove(id)
+            .then(result => {
+            console.log('deleted', result)
             setPersons(persons.filter(persons => persons.id !== id))
-            setRemoveMessage(`${id} delete successful`)
+            setRemoveMessage(`${persons.find(p => p.id === id).name} delete successful`)
             setTimeout(() => {
               setRemoveMessage(null)
             }, 5000)
+            
       })
-        .catch(error => {
-          setRemoveMessage(
-            `${id} was already deleted`)
-          setTimeout(() => {
-            setRemoveMessage(null)
-          }, 5000)
-          setPersons(persons.filter(persons => persons.id !== id))
-        })
+            .catch(error => {
+              setRemoveMessage(
+                `${name} was already deleted`)
+              setTimeout(() => {
+                setRemoveMessage(null)
+              }, 5000)
+              setPersons(persons.filter(persons => persons.id !== id))
+            })
       }
     }
   //show the searching number by name
@@ -144,3 +151,60 @@ const App = () => {
 }
 
 export default App
+
+
+
+//previous-------------------
+//Check if name alredy exist
+    // persons.some(e => e.name === newName)
+    //   ? alert(`${newName} is already exist in phonebook`)
+    //   : numberServer
+    //       .create(nameObject)
+    //       .then(returnNumber => {
+    //         setPersons(persons.concat(returnNumber))
+    //         setNewName('')
+    //         setNewNumber('')
+
+    //         setAddedMessage(
+    //           `Added ${newName} ${newNumber}`
+    //         )
+    //         setTimeout(() => {
+    //           setAddedMessage(null)
+    //         }, 5000)
+    //       })
+    //       .catch(error => {
+    //         setAddedMessage(
+    //           `${error.response.data.error}`
+    //         )
+    //         setTimeout(() => {
+    //           setAddedMessage(null)
+    //         }, 5000)
+    //       })
+
+//person alredy exist ask for updating
+    // const personUpdate = persons.find(p => p.name === newName)
+    //   if(personUpdate){
+    //     if(window.confirm(`Replace ${personUpdate.number} with ${newNumber}?`)){
+
+    //       const numberChange = {...personUpdate, number: newNumber}
+    //       const id = personUpdate.id
+
+    //       numberServer
+    //         .update(id, numberChange).then(returnNumber => {
+    //           setPersons(persons.map(person => 
+    //             person.id !== id ? person : returnNumber))
+    //         }) 
+    //         .catch(error => {
+    //           setErrorMessage(`${id} was already deleted from server`)
+    //           setTimeout(() => {
+    //             setErrorMessage(null)
+    //           }, 5000)
+    //         })          
+
+    //         setNewName('')
+    //         setNewNumber('')
+    //     }
+    //   }        
+  
+
+

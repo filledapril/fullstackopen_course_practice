@@ -9,7 +9,7 @@ const Persons = ({showNumber, removeName}) =>{
             <div key={p.id}>
                 {p.name} 
                 {p.number}
-                <button onClick={() => removeName(p.id)}>Delete</button>
+                <button onClick={() => removeName(p.id, p.name)}>Delete</button>
             </div>)}
             
         </div>

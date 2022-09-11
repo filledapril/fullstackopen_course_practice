@@ -1,0 +1,8 @@
+POST HTTP://localhost:3003/api/blogs
+Content-Type: application/json
+
+{
+    "title": "For Delete Testing",
+    "author": "Test delete",
+    "url": "url"
+}
